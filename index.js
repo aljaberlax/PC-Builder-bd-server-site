@@ -44,7 +44,13 @@ async function run() {
             const reviews = await cursor.toArray();
             res.send(reviews);
         });
-       
+        app.get('/booking', async (req, res) => {
+            const query = {};
+            const cursor = BookingCollection.find(query);
+            const bookings = await cursor.toArray();
+            res.send(bookings);
+        });
+
         //post 
 
         app.post('/review', async (req, res) => {
