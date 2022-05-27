@@ -21,6 +21,7 @@ async function run() {
         const PartsCollection = client.db("PC_Builder_BD").collection("Parts");
         const ReviewCollection = client.db("PC_Builder_BD").collection("reviews");
         const BookingCollection = client.db("PC_Builder_BD").collection("bookings");
+        const UserCollection = client.db("PC_Builder_BD").collection("users");
 
         app.get('/parts', async (req, res) => {
             const query = {};
@@ -35,7 +36,7 @@ async function run() {
             console.log(quary)
             const products = await PartsCollection.findOne(quary);
             res.send(products);
-            console.log(products)
+          
 
         });
         app.get('/review', async (req, res) => {
@@ -50,6 +51,21 @@ async function run() {
             const bookings = await cursor.toArray();
             res.send(bookings);
         });
+
+        //put
+        app.put('/user/:email', async (req, res) => {
+            const email = req.params.email;
+            const user = req.body;
+            const filter = { email: email };
+            const options = { upsert: true };
+            const updateDoc = {
+              $set: user,
+            };
+            const result = await UserCollection.updateOne(filter, updateDoc, options);
+            const token = jwt.sign({ email: email }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' })
+            res.send({ result, token });
+          })
+        
 
         //post 
 
