@@ -20,6 +20,7 @@ async function run() {
         await client.connect();
         const PartsCollection = client.db("PC_Builder_BD").collection("Parts");
         const ReviewCollection = client.db("PC_Builder_BD").collection("reviews");
+        const BookingCollection = client.db("PC_Builder_BD").collection("bookings");
 
         app.get('/parts', async (req, res) => {
             const query = {};
@@ -28,7 +29,7 @@ async function run() {
             res.send(Parts);
         });
         app.get('/parts/:id', async (req, res) => {
-            const id = req.params._id;
+            const id = req.params.id;
 
             const quary = { _id: ObjectId(id) }
             console.log(quary)
@@ -43,6 +44,12 @@ async function run() {
             const reviews = await cursor.toArray();
             res.send(reviews);
         });
+        app.get('/booking', async (req, res) => {
+            const query = {};
+            const cursor = BookingCollection.find(query);
+            const bookings = await cursor.toArray();
+            res.send(bookings);
+        });
 
         //post 
 
@@ -50,6 +57,12 @@ async function run() {
             const reviews = req.body;
             console.log(reviews)
             const result = await ReviewCollection.insertOne(reviews)
+            res.send(result)
+        })
+        app.post('/booking', async (req, res) => {
+            const booking = req.body;
+            console.log(booking)
+            const result = await BookingCollection.insertOne(booking)
             res.send(result)
         })
     }
