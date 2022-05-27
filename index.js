@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config();
 
 const app = express();
@@ -15,19 +15,45 @@ app.use(express.json());
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.PASS}@cluster0.t6k5q.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
-async function run(){
-    try{
+async function run() {
+    try {
         await client.connect();
         const PartsCollection = client.db("PC_Builder_BD").collection("Parts");
+        const ReviewCollection = client.db("PC_Builder_BD").collection("reviews");
 
         app.get('/parts', async (req, res) => {
             const query = {};
             const cursor = PartsCollection.find(query);
             const Parts = await cursor.toArray();
             res.send(Parts);
-          });
+        });
+        app.get('/parts/:id', async (req, res) => {
+            const id = req.params._id;
+
+            const quary = { _id: ObjectId(id) }
+            console.log(quary)
+            const products = await PartsCollection.findOne(quary);
+            res.send(products);
+            console.log(products)
+
+        });
+        app.get('/review', async (req, res) => {
+            const query = {};
+            const cursor = ReviewCollection.find(query);
+            const reviews = await cursor.toArray();
+            res.send(reviews);
+        });
+
+        //post 
+
+        app.post('/review', async (req, res) => {
+            const reviews = req.body;
+            console.log(reviews)
+            const result = await ReviewCollection.insertOne(reviews)
+            res.send(result)
+        })
     }
-    finally{
+    finally {
 
     }
 }
@@ -41,9 +67,9 @@ run().catch(console.dir);
 
 
 app.get('/', (req, res) => {
-  res.send('Hello From PC Buider Bd')
+    res.send('Hello From PC Buider Bd')
 })
 
 app.listen(port, () => {
-  console.log(`Pc builder bd listening on port ${port}`)
+    console.log(`Pc builder bd listening on port ${port}`)
 })
